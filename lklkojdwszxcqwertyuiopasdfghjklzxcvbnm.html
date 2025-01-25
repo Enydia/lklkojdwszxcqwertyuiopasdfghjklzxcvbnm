@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crazy Surprise</title>
+    <style>
+        body {
+            color: blueviolet;
+            background-color: blue;
+            column-gap: 20px;
+            transition: background-color 0.5s;
+            overflow: hidden; /* Prevent scrollbars during animations */
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px; /* Adds spacing between buttons */
+            margin-top: 50px;
+        }
+        button {
+            height: 75px;
+            width: 150px; /* Increased width for better visibility */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        /* Floating Shapes Styles */
+        .shape {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 9999;
+            animation: floatUp 5s linear infinite;
+        }
+        @keyframes floatUp {
+            from {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        /* Screen Shake Animation */
+        @keyframes shake {
+            0% { transform: translate(0, 0); }
+            10% { transform: translate(-10px, 10px); }
+            20% { transform: translate(-10px, -10px); }
+            30% { transform: translate(10px, 10px); }
+            40% { transform: translate(10px, -10px); }
+            50% { transform: translate(-10px, 10px); }
+            60% { transform: translate(-10px, -10px); }
+            70% { transform: translate(10px, 10px); }
+            80% { transform: translate(10px, -10px); }
+            90% { transform: translate(-10px, 10px); }
+            100% { transform: translate(0, 0); }
+        }
+        /* Particle Trails */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10000;
+        }
+    </style>
+</head>
+<body>
+    <h1>I Love You. Hi World</h1>
+    <div class="button-container">
+        <button onclick="alert('iloveyouworld')" style="background-color: aqua; color: aliceblue;">Button 1</button>
+
+        <!-- Updated Second Button -->
+        <button onclick="handleSurprise()" style="background-color: brown; color: violet;">Button 2</button>
+
+        <button style="background-color: rgb(113, 143, 65); color: tomato;">Button 3</button>
+        <button style="background-color: rgb(155, 93, 93); color: chocolate;">Button 4</button>
+        <button style="background-color: rgb(95, 16, 206); color: yellowgreen;">Button 5</button>
+        <button style="background-color: rgb(92, 198, 22); color: burlywood;">Button 6</button>
+        <button style="background-color: rgb(24, 135, 113); color: teal;">Button 7</button>
+        <button style="background-color: rgb(177, 32, 148); color: steelblue;">Button 8</button>
+        <button style="background-color: rgb(146, 140, 165); color: chartreuse;">Button 9</button>
+        <button style="background-color: burlywood; color: coral;">Button 10</button>
+    </div>
+
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Audio Elements -->
+    <!-- Explosion Sounds -->
+    <audio id="explosion-sound-1" src="sounds/explosion1.mp3" preload="auto"></audio>
+    <audio id="explosion-sound-2" src="sounds/explosion2.mp3" preload="auto"></audio>
+    <audio id="explosion-sound-3" src="sounds/explosion3.mp3" preload="auto"></audio>
+
+    <!-- Background Sound -->
+    <audio id="surprise-sound" src="sounds/button-3.mp3" preload="auto"></audio>
+
+    <script>
+        // Array of explosion sound element IDs
+        const explosionSoundIds = ['explosion-sound-1', 'explosion-sound-2', 'explosion-sound-3'];
+
+        function handleSurprise() {
+            // Prompt the user for confirmation
+            const wantsSurprise = confirm("Do you want a surprise?");
+
+            if (wantsSurprise) {
+                triggerCrazyEffect();
+            }
+        }
+
+        function triggerCrazyEffect() {
+            // Play background sound with error handling
+            const backgroundSound = document.getElementById('surprise-sound');
+            backgroundSound.currentTime = 0; // Reset to start
+            backgroundSound.play().catch(error => {
+                console.error("Audio playback failed:", error);
+                alert("Sorry, the background sound couldn't be played.");
+            });
+
+            // Start Confetti Explosion
+            createConfetti();
+
+            // Start Background Color Cycling
+            cycleBackgroundColors();
+
+            // Add Floating Shapes
+            addFloatingShapes();
+
+            // Trigger Screen Shake
+            shakeScreen();
+
+            // Start Particle Trails
+            startParticleTrails();
+
+            // Start Explosion Sounds
+            startExplosionSounds();
+
+            // Stop all effects after a certain time
+            setTimeout(() => {
+                stopAllEffects();
+            }, 10000); // 10 seconds
+        }
+
+        // 1. Confetti Explosion
+        function createConfetti() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.id = 'confetti-container';
+            confettiContainer.style.position = 'fixed';
+            confettiContainer.style.top = '0';
+            confettiContainer.style.left = '0';
+            confettiContainer.style.width = '100%';
+            confettiContainer.style.height = '100%';
+            confettiContainer.style.pointerEvents = 'none';
+            document.body.appendChild(confettiContainer);
+
+            const colors = ['#FFC700', '#FF0000', '#2E3192', '#41BBC7', '#73A857', '#FF69B4', '#8A2BE2'];
+            for (let i = 0; i < 300; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.width = '8px';
+                confetti.style.height = '8px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.top = '-10px';
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.opacity = Math.random();
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                confettiContainer.appendChild(confetti);
+            }
+
+            // Define keyframes for the falling animation
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes fall {
+                    to {
+                        transform: translateY(${window.innerHeight + 100}px) rotate(${Math.random() * 360}deg);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // 2. Background Color Cycling
+        let bgInterval;
+        function cycleBackgroundColors() {
+            const colors = ['#FF6B6B', '#F06595', '#CC5DE8', '#845EF7', '#5C7CFA', '#339AF0', '#22B8CF', '#20C997', '#51CF66', '#94D82D', '#fcc419'];
+            let index = 0;
+            bgInterval = setInterval(() => {
+                document.body.style.backgroundColor = colors[index % colors.length];
+                index++;
+            }, 200); // Change color every 200ms
+        }
+
+        // 3. Add Floating Shapes
+        function addFloatingShapes() {
+            const shapeTypes = ['circle', 'square', 'star'];
+            for (let i = 0; i < 50; i++) {
+                const shape = document.createElement('div');
+                shape.classList.add('shape');
+                const type = shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
+                switch(type) {
+                    case 'circle':
+                        shape.style.borderRadius = '50%';
+                        break;
+                    case 'square':
+                        // No additional styling needed
+                        break;
+                    case 'star':
+                        // Creating a star using CSS borders
+                        shape.style.width = '0';
+                        shape.style.height = '0';
+                        shape.style.borderLeft = '10px solid transparent';
+                        shape.style.borderRight = '10px solid transparent';
+                        shape.style.borderBottom = '20px solid yellow';
+                        break;
+                }
+                shape.style.backgroundColor = type !== 'star' ? getRandomColor() : 'yellow';
+                shape.style.left = Math.random() * window.innerWidth + 'px';
+                shape.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                shape.style.opacity = Math.random();
+                document.body.appendChild(shape);
+            }
+        }
+
+        // Helper to get random color
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // 4. Screen Shake Effect
+        function shakeScreen() {
+            document.body.style.animation = 'shake 0.5s';
+            // Remove animation after it's done
+            setTimeout(() => {
+                document.body.style.animation = '';
+            }, 500);
+        }
+
+        // 5. Particle Trails
+        function startParticleTrails() {
+            const canvas = document.getElementById('particle-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+            const particles = [];
+            const maxParticles = 100;
+
+            function Particle(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.size = Math.random() * 3 + 1;
+                this.color = `rgba(${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, 0.7)`;
+            }
+
+            function animateParticles() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, index) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                    // Remove particles that are out of bounds
+                    if (p.x < 0 || p.x > canvas.width || p.y < 0 || p.y > canvas.height) {
+                        particles.splice(index, 1);
+                    }
+                });
+                requestAnimationFrame(animateParticles);
+            }
+
+            animateParticles();
+
+            // Track mouse movement
+            window.addEventListener('mousemove', (e) => {
+                for (let i = 0; i < 5; i++) {
+                    particles.push(new Particle(e.clientX, e.clientY));
+                    if (particles.length > maxParticles) {
+                        particles.shift();
+                    }
+                }
+            });
+        }
+
+        // 6. Start Explosion Sounds
+        function startExplosionSounds() {
+            const totalDuration = 10000; // 10 seconds
+            const numberOfExplosions = 5; // Number of explosion sounds
+            const interval = totalDuration / numberOfExplosions;
+
+            for (let i = 0; i < numberOfExplosions; i++) {
+                setTimeout(() => {
+                    playRandomExplosionSound();
+                }, interval * (i + 1));
+            }
+        }
+
+        // Play a random explosion sound from the array
+        function playRandomExplosionSound() {
+            const randomIndex = Math.floor(Math.random() * explosionSoundIds.length);
+            const soundId = explosionSoundIds[randomIndex];
+            const sound = document.getElementById(soundId);
+            if (sound) {
+                // Clone the audio element to allow overlapping sounds
+                const clone = sound.cloneNode();
+                clone.play().catch(error => {
+                    console.error("Explosion sound playback failed:", error);
+                });
+            }
+        }
+
+        // 7. Stop All Effects
+        function stopAllEffects() {
+            // Stop background color cycling
+            clearInterval(bgInterval);
+            // Revert to original background color
+            document.body.style.backgroundColor = 'blue';
+
+            // Remove confetti
+            const confettiContainer = document.getElementById('confetti-container');
+            if (confettiContainer) {
+                document.body.removeChild(confettiContainer);
+            }
+
+            // Remove floating shapes
+            const shapes = document.querySelectorAll('.shape');
+            shapes.forEach(shape => shape.remove());
+
+            // Stop particle trails
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Optionally, remove the canvas element
+            // document.body.removeChild(canvas);
+
+            // Reset any animations
+            document.body.style.animation = '';
+
+            // Pause background sound
+            const backgroundSound = document.getElementById('surprise-sound');
+            backgroundSound.pause();
+            backgroundSound.currentTime = 0;
+        }
+    </script>
+</body>
+</html>
